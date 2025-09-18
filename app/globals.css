@@ -19,3 +19,13 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Logo color inversion rules */
+.site-logo {
+  filter: invert(0);
+  transition: filter 150ms ease;
+}
+
+.dark .site-logo {
+  filter: invert(1);
+}
+

@@ -1,29 +1,12 @@
 'use client'
 
 import { useLanguage } from './components/providers/language-provider'
-import { ThemeToggle } from './components/ui/theme-toggle'
-import { LanguageToggle } from './components/ui/language-toggle'
 
 export default function Home() {
   const { t } = useLanguage()
 
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors">
-      {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b border-foreground/20 bg-background">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <div className="flex items-center space-x-4">
-            <h1 className="text-xl font-bold text-foreground">
-              HSAFA
-            </h1>
-          </div>
-          <div className="flex items-center space-x-4">
-            <ThemeToggle />
-            <LanguageToggle />
-          </div>
-        </div>
-      </header>
-
       {/* Main Content */}
       <main className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto text-center">
@@ -51,7 +34,7 @@ export default function Home() {
           </div>
 
           {/* Features Grid */}
-          <div className="grid md:grid-cols-3 gap-8 mb-16">
+          <div id="features" className="grid md:grid-cols-3 gap-8 mb-16">
             <div className="p-6 rounded-lg border border-foreground/20 bg-background">
               <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mb-4 mx-auto">
                 <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
