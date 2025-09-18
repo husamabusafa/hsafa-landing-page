@@ -1,0 +1,34 @@
+{
+  "common": {
+    "welcome": "Welcome",
+    "home": "Home",
+    "about": "About",
+    "services": "Services",
+    "contact": "Contact",
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "try_again": "Try Again"
+  },
+  "navigation": {
+    "toggle_theme": "Toggle Theme",
+    "toggle_language": "Toggle Language",
+    "light_mode": "Light Mode",
+    "dark_mode": "Dark Mode"
+  },
+  "homepage": {
+    "title": "Welcome to Our Website",
+    "subtitle": "Building amazing experiences with modern technology",
+    "description": "This is a Next.js application with TypeScript, Tailwind CSS, theme switching, and multi-language support.",
+    "get_started": "Get Started",
+    "learn_more": "Learn More"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "language": {
+    "english": "English",
+    "arabic": "العربية"
+  }
+}

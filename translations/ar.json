@@ -1,0 +1,34 @@
+{
+  "common": {
+    "welcome": "أهلاً وسهلاً",
+    "home": "الرئيسية",
+    "about": "حولنا",
+    "services": "الخدمات",
+    "contact": "اتصل بنا",
+    "loading": "جاري التحميل...",
+    "error": "حدث خطأ ما",
+    "try_again": "حاول مرة أخرى"
+  },
+  "navigation": {
+    "toggle_theme": "تغيير المظهر",
+    "toggle_language": "تغيير اللغة",
+    "light_mode": "المظهر الفاتح",
+    "dark_mode": "المظهر الداكن"
+  },
+  "homepage": {
+    "title": "مرحباً بكم في موقعنا",
+    "subtitle": "بناء تجارب مذهلة بالتقنيات الحديثة",
+    "description": "هذا تطبيق Next.js مع TypeScript و Tailwind CSS، وإمكانية تغيير المظهر ودعم اللغات المتعددة.",
+    "get_started": "ابدأ الآن",
+    "learn_more": "اعرف المزيد"
+  },
+  "theme": {
+    "light": "فاتح",
+    "dark": "داكن",
+    "system": "النظام"
+  },
+  "language": {
+    "english": "English",
+    "arabic": "العربية"
+  }
+}
