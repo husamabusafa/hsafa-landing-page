@@ -15,11 +15,11 @@ export function LanguageToggle() {
   return (
     <button
       onClick={toggleLanguage}
-      className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+      className="inline-flex items-center justify-center gap-2 px-3 h-9 rounded-full border border-foreground/10 bg-background/40 backdrop-blur transition-all hover:bg-foreground/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30 active:scale-95"
       aria-label={t('navigation.toggle_language')}
     >
-      <Languages className="h-4 w-4" />
-      <span className="text-sm font-medium">
+      <Languages className="h-4 w-4 text-foreground/80" />
+      <span className="text-sm font-medium text-foreground/80">
         {language === 'en' ? t('language.arabic') : t('language.english')}
       </span>
     </button>

@@ -13,7 +13,25 @@
     "toggle_theme": "Toggle Theme",
     "toggle_language": "Toggle Language",
     "light_mode": "Light Mode",
-    "dark_mode": "Dark Mode"
+    "dark_mode": "Dark Mode",
+    "features": "Features",
+    "pricing": "Pricing",
+    "docs": "Docs",
+    "contact": "Contact",
+    "download": "Download"
+  },
+  "hero": {
+    "title": "The AI Code Editor",
+    "subtitle": "Built to make you extraordinarily productive. Build and ship faster with AI-powered coding.",
+    "cta_primary": "Download for macOS",
+    "cta_secondary": "All Downloads",
+    "preview_label": "Website Preview"
+  },
+  "downloads": {
+    "title": "Downloads",
+    "subtitle": "Get the editor for your platform.",
+    "mac": "Download for macOS",
+    "windows": "Download for Windows"
   },
   "homepage": {
     "title": "Welcome to Our Website",
