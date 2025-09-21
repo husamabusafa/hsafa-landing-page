@@ -34,272 +34,6 @@ const nodeStyles = {
 
 type NodeKey = keyof typeof nodeStyles;
 
-function HandleCircle({ color, position = "top" }: { color: string; position?: "top" | "bottom" }) {
-  return (
-    <div
-      className={`absolute ${position === "top" ? "-top-2" : "-bottom-2"} left-1/2 -translate-x-1/2 w-3 h-3 rounded-full border-[3px] shadow-lg backdrop-blur-sm z-50`}
-      style={{ backgroundColor: `${color}99`, borderColor: color }}
-      aria-hidden
-    />
-  );
-}
-
-function NodeHeader({
-  icon: Icon,
-  label,
-  color,
-  expanded,
-  setExpanded,
-}: {
-  icon: React.ComponentType<any>;
-  label: string;
-  color: string;
-  expanded: boolean;
-  setExpanded: (v: boolean) => void;
-}) {
-  return (
-    <div className={`relative flex items-center justify-between p-6 gap-4 pb-4`}>
-      <div className="flex items-center gap-4">
-        <div
-          className="w-12 min-w-12 h-12 rounded-2xl flex items-center justify-center shadow-2xl border-2 transition-all duration-500"
-          style={{
-            backgroundColor: `${color}20`,
-            color,
-            borderColor: `${color}40`,
-            boxShadow: `0 20px 40px ${color}20`,
-          }}
-        >
-          <Icon size={24} className="drop-shadow-lg" />
-        </div>
-        <div>
-          <h3 className="font-bold text-lg">{label}</h3>
-          <div className="flex items-center gap-2 mt-1">
-            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">UI Only</span>
-          </div>
-        </div>
-      </div>
-      <button
-        className={`transition-all duration-300 transform ${expanded ? "rotate-180 scale-110" : "hover:scale-110"}`}
-        onClick={(e) => {
-          e.stopPropagation();
-          setExpanded(!expanded);
-        }}
-        aria-label={expanded ? "Collapse" : "Expand"}
-      >
-        <div className={`p-2 rounded-full bg-white/50 dark:bg-zinc-700/50 backdrop-blur-sm`}>
-          <ChevronDown size={16} className="text-zinc-500 dark:text-zinc-300" />
-        </div>
-      </button>
-    </div>
-  );
-}
-
-function ConfigRow({ icon: Icon, title, children }: { icon: React.ComponentType<any>; title: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-3">
-      <label className="text-sm font-semibold text-primary flex items-center gap-2">
-        <Icon size={16} />
-        {title}
-      </label>
-      {children}
-    </div>
-  );
-}
-
-function CollapsibleNode({
-  nodeKey,
-  label,
-  icon,
-  children,
-  withBottomHandle = false,
-}: {
-  nodeKey: NodeKey;
-  label: string;
-  icon: React.ComponentType<any>;
-  children: React.ReactNode;
-  withBottomHandle?: boolean;
-}) {
-  const [expanded, setExpanded] = useState(false);
-  const color = nodeStyles[nodeKey].color;
-
-  return (
-    <div
-      className={`group relative flex flex-col rounded-3xl border-2 transition-all duration-300 ease-out cursor-pointer w-[360px] backdrop-blur-xl bg-gradient-to-br from-white/80 via-white/60 to-white/80 dark:from-zinc-900/60 dark:via-zinc-800/40 dark:to-zinc-900/60 text-zinc-800 dark:text-zinc-200 border-zinc-300 hover:border-zinc-400 dark:border-zinc-600 dark:hover:border-zinc-500 shadow-xl hover:shadow-2xl ${expanded ? "min-h-[380px]" : ""}`}
-      onClick={() => setExpanded(!expanded)}
-    >
-      {/* Handles as circles (UI only) */}
-      <HandleCircle color={color} position="top" />
-      {withBottomHandle && <HandleCircle color={color} position="bottom" />}
-
-      {/* Animated background */}
-      <div className="absolute inset-0 rounded-3xl opacity-30 transition-opacity duration-500 group-hover:opacity-50">
-        <div
-          className="absolute inset-0 rounded-3xl"
-          style={{
-            background: `linear-gradient(135deg, ${color}15 0%, transparent 50%, ${color}10 100%)`,
-          }}
-        />
-      </div>
-
-      {/* Header */}
-      <NodeHeader icon={icon} label={label} color={color} expanded={expanded} setExpanded={setExpanded} />
-
-      {/* Body */}
-      {expanded && (
-        <div className="relative px-6 pb-6 space-y-6" onClick={(e) => e.stopPropagation()}>
-          <div className="w-full h-px bg-zinc-200/60 dark:bg-zinc-700/60" />
-          {children}
-
-          {/* Configuration Status (UI only) */}
-          <div className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold border-2 bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-700">
-            <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse shadow-lg" />
-            Configured (UI Only)
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// Individual node UIs (UI-only, no logic)
-function ModelNodeUI() {
-  return (
-    <CollapsibleNode nodeKey="model" label="Model" icon={Cpu}>
-      <ConfigRow icon={Hash} title="Provider and Model">
-        <div className="grid grid-cols-2 gap-4">
-          <select className="h-10 px-3 rounded-xl border-2 bg-white/70 dark:bg-zinc-800/70 border-zinc-200 dark:border-zinc-600">
-            <option>OpenAI</option>
-            <option>Anthropic</option>
-            <option>Mistral</option>
-          </select>
-          <input className="h-10 px-3 rounded-xl border-2 bg-white/70 dark:bg-zinc-800/70 border-zinc-200 dark:border-zinc-600" placeholder="e.g. gpt-4o-mini" />
-        </div>
-      </ConfigRow>
-      <ConfigRow icon={FileText} title="Description">
-        <textarea rows={4} className="w-full p-3 rounded-xl border-2 bg-white/70 dark:bg-zinc-800/70 border-zinc-200 dark:border-zinc-600" placeholder="Describe model usage..." />
-      </ConfigRow>
-    </CollapsibleNode>
-  );
-}
-
-function TemperatureNodeUI() {
-  return (
-    <CollapsibleNode nodeKey="temperature" label="Temperature" icon={Thermometer}>
-      <ConfigRow icon={Thermometer} title="Sampling Temperature">
-        <input type="range" min={0} max={2} step={0.1} defaultValue={0.7} className="w-full" />
-        <div className="text-xs text-zinc-500">Controls randomness: lower = deterministic, higher = creative</div>
-      </ConfigRow>
-    </CollapsibleNode>
-  );
-}
-
-function SystemPromptNodeUI() {
-  return (
-    <CollapsibleNode nodeKey="system_prompt" label="System Prompt" icon={MessagesSquare}>
-      <ConfigRow icon={FileText} title="System Instructions">
-        <textarea rows={6} className="w-full p-3 rounded-xl border-2 bg-white/70 dark:bg-zinc-800/70 border-zinc-200 dark:border-zinc-600" placeholder="You are a helpful assistant..." />
-      </ConfigRow>
-    </CollapsibleNode>
-  );
-}
-
-function PromptNodeUI() {
-  return (
-    <CollapsibleNode nodeKey="prompt" label="Prompt" icon={Type}>
-      <ConfigRow icon={FileText} title="User Prompt">
-        <textarea rows={5} className="w-full p-3 rounded-xl border-2 bg-white/70 dark:bg-zinc-800/70 border-zinc-200 dark:border-zinc-600" placeholder="Enter the prompt..." />
-      </ConfigRow>
-    </CollapsibleNode>
-  );
-}
-
-function MaxItemsNodeUI() {
-  return (
-    <CollapsibleNode nodeKey="max_items" label="Max Items" icon={ListOrdered}>
-      <ConfigRow icon={ListOrdered} title="Maximum Items">
-        <input type="number" min={1} defaultValue={5} className="h-10 px-3 rounded-xl border-2 bg-white/70 dark:bg-zinc-800/70 border-zinc-200 dark:border-zinc-600 w-32" />
-      </ConfigRow>
-    </CollapsibleNode>
-  );
-}
-
-function ResponseStructureNodeUI() {
-  return (
-    <CollapsibleNode nodeKey="response_structure" label="Response Structure" icon={Braces}>
-      <ConfigRow icon={Code2} title="Schema (UI Only)">
-        <textarea rows={6} className="w-full font-mono text-sm p-3 rounded-xl border-2 bg-white/70 dark:bg-zinc-800/70 border-zinc-200 dark:border-zinc-600" placeholder="{\n  title: string,\n  items: Array<{ id: string; score: number }>,\n}" />
-      </ConfigRow>
-    </CollapsibleNode>
-  );
-}
-
-function CustomUIComponentNodeUI() {
-  return (
-    <CollapsibleNode nodeKey="custom_ui_component" label="Custom UI Component" icon={Puzzle}>
-      <ConfigRow icon={Puzzle} title="Component Name">
-        <input className="h-10 px-3 rounded-xl border-2 bg-white/70 dark:bg-zinc-800/70 border-zinc-200 dark:border-zinc-600" placeholder="e.g. RatingStars" />
-      </ConfigRow>
-      <ConfigRow icon={Code2} title="Props (JSON UI Only)">
-        <textarea rows={5} className="w-full font-mono text-sm p-3 rounded-xl border-2 bg-white/70 dark:bg-zinc-800/70 border-zinc-200 dark:border-zinc-600" placeholder='{"color": "#f59e0b", "max": 5}' />
-      </ConfigRow>
-    </CollapsibleNode>
-  );
-}
-
-function ActionNodeUI() {
-  return (
-    <CollapsibleNode nodeKey="action" label="Action" icon={Play}>
-      <ConfigRow icon={FileText} title="Title">
-        <input className="h-10 px-3 rounded-xl border-2 bg-white/70 dark:bg-zinc-800/70 border-zinc-200 dark:border-zinc-600 w-full" placeholder="e.g. Post-process summary" />
-      </ConfigRow>
-      <ConfigRow icon={FileText} title="Description">
-        <textarea rows={4} className="w-full p-3 rounded-xl border-2 bg-white/70 dark:bg-zinc-800/70 border-zinc-200 dark:border-zinc-600" placeholder="Describe what the action does..." />
-      </ConfigRow>
-      <ConfigRow icon={Code2} title="Schema (UI Only)">
-        <textarea rows={4} className="w-full font-mono text-sm p-3 rounded-xl border-2 bg-white/70 dark:bg-zinc-800/70 border-zinc-200 dark:border-zinc-600" placeholder="type Action = { enabled: boolean }" />
-      </ConfigRow>
-      <div className="flex items-center justify-between p-4 rounded-xl border-2 bg-gradient-to-r from-zinc-50/50 to-white/50 dark:from-zinc-800/50 dark:to-zinc-700/50 border-zinc-200 dark:border-zinc-600">
-        <div>
-          <div className="font-medium text-sm mb-1">Execution Timing</div>
-          <p className="text-xs text-zinc-500">UI only toggle</p>
-        </div>
-        <button className="relative inline-flex h-6 w-11 items-center rounded-full bg-zinc-300 dark:bg-zinc-600">
-          <span className="inline-block h-4 w-4 transform rounded-full bg-white translate-x-1" />
-        </button>
-      </div>
-    </CollapsibleNode>
-  );
-}
-
-function CustomMCPNodeUI() {
-  return (
-    <CollapsibleNode nodeKey="custom_mcp" label="Custom MCP" icon={Boxes} withBottomHandle>
-      <ConfigRow icon={Boxes} title="Server Name">
-        <input className="h-10 px-3 rounded-xl border-2 bg-white/70 dark:bg-zinc-800/70 border-zinc-200 dark:border-zinc-600 w-full" placeholder="e.g. my-server" />
-      </ConfigRow>
-      <ConfigRow icon={Wrench} title="Command">
-        <input className="h-10 px-3 rounded-xl border-2 bg-white/70 dark:bg-zinc-800/70 border-zinc-200 dark:border-zinc-600 w-full" placeholder="e.g. node server.js" />
-      </ConfigRow>
-      <ConfigRow icon={Code2} title="Args (UI Only)">
-        <textarea rows={4} className="w-full font-mono text-sm p-3 rounded-xl border-2 bg-white/70 dark:bg-zinc-800/70 border-zinc-200 dark:border-zinc-600" placeholder='["--port", "3000"]' />
-      </ConfigRow>
-    </CollapsibleNode>
-  );
-}
-
-function MCPToolNodeUI() {
-  return (
-    <CollapsibleNode nodeKey="mcpTool" label="MCP Tool" icon={Wrench} withBottomHandle>
-      <ConfigRow icon={Wrench} title="Tool Name">
-        <input className="h-10 px-3 rounded-xl border-2 bg-white/70 dark:bg-zinc-800/70 border-zinc-200 dark:border-zinc-600 w-full" placeholder="e.g. search" />
-      </ConfigRow>
-      <ConfigRow icon={FileText} title="Description">
-        <textarea rows={3} className="w-full p-3 rounded-xl border-2 bg-white/70 dark:bg-zinc-800/70 border-zinc-200 dark:border-zinc-600" placeholder="What this tool does (UI only)" />
-      </ConfigRow>
-    </CollapsibleNode>
-  );
-}
 
 // --------------------
 // Diagram UI (UI-only)
@@ -385,26 +119,6 @@ const diagramNodes: DiagramNode[] = [
   },
 ];
 
-function CenterHandleDot({ color }: { color: string }) {
-  return (
-    <div
-      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full border-[3px] z-30"
-      style={{ backgroundColor: `${color}99`, borderColor: color }}
-      aria-hidden
-    />
-  );
-}
-
-function HorizontalConnector({ side }: { side: "left" | "right" }) {
-  // Approximate connector from center line to the node card.
-  // Tuned to pair with card width ~360px and gap paddings.
-  const common = "absolute top-1/2 -translate-y-1/2 h-[2px] bg-zinc-200 dark:bg-zinc-700";
-  return side === "right" ? (
-    <div className={`${common} left-1/2 right-[420px]`} aria-hidden />
-  ) : (
-    <div className={`${common} left-[420px] right-1/2`} aria-hidden />
-  );
-}
 
 function NodeCard({
   node,
@@ -423,22 +137,34 @@ function NodeCard({
   const Icon = node.icon;
   return (
     <div
-      className="relative group flex flex-col rounded-3xl border-2 transition-all duration-300 ease-out w-[360px] backdrop-blur-xl bg-gradient-to-br from-white/80 via-white/60 to-white/80 dark:from-zinc-900/60 dark:via-zinc-800/40 dark:to-zinc-900/60 text-zinc-800 dark:text-zinc-200 border-zinc-300 hover:border-zinc-400 dark:border-zinc-600 dark:hover:border-zinc-500 shadow-xl hover:shadow-2xl"
+      className="relative group flex flex-col rounded-3xl border-2 transition-all duration-300 ease-out w-[360px] backdrop-blur-xl bg-card/80 text-card-foreground border-border hover:border-border/80 shadow-xl hover:shadow-2xl"
+      style={{ boxShadow: `0 10px 25px rgba(0,0,0,0.08), 0 0 24px ${color}33, 0 0 48px ${color}22` }}
     >
+      {/* Corner accents
+      <span className="pointer-events-none absolute -top-px left-8 h-[2px] w-20 rounded-full" style={{background: `linear-gradient(90deg, ${color}66, transparent)`}} />
+      <span className="pointer-events-none absolute -bottom-px right-8 h-[2px] w-24 rounded-full" style={{background: `linear-gradient(90deg, transparent, ${color}66)`}} /> */}
+      {/* Soft color glow behind card */}
+      <div
+        className="pointer-events-none absolute -inset-0.5 rounded-[28px] blur-2xl opacity-40 group-hover:opacity-70 transition-opacity duration-500"
+        style={{
+          background: `radial-gradient(120px 120px at 20% 0%, ${color}40, transparent 60%), radial-gradient(160px 160px at 80% 100%, ${color}30, transparent 60%)`,
+        }}
+        aria-hidden
+      />
       {/* Handles as circles (UI only) */}
       {!isFirst && (
         <div
           ref={onTopHandleRef}
-          className="absolute -top-2 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full border-[3px] shadow-lg backdrop-blur-sm z-50"
-          style={{ backgroundColor: `${color}99`, borderColor: color }}
+          className="absolute -top-2 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full border-[3px] backdrop-blur-sm z-50"
+          style={{ backgroundColor: `${color}99`, borderColor: color, boxShadow: `0 0 8px ${color}aa, 0 0 18px ${color}66, 0 0 36px ${color}44` }}
           aria-hidden
         />
       )}
       {!isLast && (
         <div
           ref={onBottomHandleRef}
-          className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full border-[3px] shadow-lg backdrop-blur-sm z-50"
-          style={{ backgroundColor: `${color}99`, borderColor: color }}
+          className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full border-[3px] backdrop-blur-sm z-50"
+          style={{ backgroundColor: `${color}99`, borderColor: color, boxShadow: `0 0 8px ${color}aa, 0 0 18px ${color}66, 0 0 36px ${color}44` }}
           aria-hidden
         />
       )}
@@ -470,8 +196,20 @@ function NodeCard({
         </div>
       </div>
       <div className="px-6 pb-6">
-        <div className="w-full h-px bg-zinc-200/60 dark:bg-zinc-700/60 mb-4" />
-        <p className="text-sm text-zinc-600 dark:text-zinc-300">{node.description}</p>
+        <div className="w-full h-px bg-border/60 mb-4" />
+        <p className="text-sm text-muted-foreground">{node.description}</p>
+        {/* Footer chips */}
+        <div className="mt-4 flex flex-wrap gap-2">
+          <span className="text-[11px] px-2.5 py-1 rounded-full border bg-background/60" style={{borderColor: `${color}55`, color}}>
+            Configurable
+          </span>
+          <span className="text-[11px] px-2.5 py-1 rounded-full border bg-background/60 text-muted-foreground border-border">
+            Composable
+          </span>
+          <span className="text-[11px] px-2.5 py-1 rounded-full border bg-background/60 text-muted-foreground border-border">
+            Documented
+          </span>
+        </div>
       </div>
     </div>
   );
@@ -512,8 +250,8 @@ function DiagramRow({
             />
           ) : (
             <div className="max-w-md md:pr-12">
-              <h4 className="text-xl font-semibold">{node.title}</h4>
-              <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-2">{node.description}</p>
+              <h4 className="text-xl font-semibold text-foreground">{node.title}</h4>
+              <p className="text-sm text-muted-foreground mt-2">{node.description}</p>
             </div>
           )}
         </div>
@@ -530,8 +268,8 @@ function DiagramRow({
             />
           ) : (
             <div className="max-w-md md:pl-12 text-right md:text-left md:ml-0">
-              <h4 className="text-xl font-semibold">{node.title}</h4>
-              <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-2">{node.description}</p>
+              <h4 className="text-xl font-semibold text-foreground">{node.title}</h4>
+              <p className="text-sm text-muted-foreground mt-2">{node.description}</p>
             </div>
           )}
         </div>
@@ -613,28 +351,102 @@ export default function Page() {
   }, []);
 
   return (
-    <main className="min-h-screen w-full py-12 px-6 md:px-10 lg:px-16 bg-gradient-to-br from-zinc-50 to-white dark:from-zinc-950 dark:to-zinc-900">
+    <main className="min-h-screen w-full py-12 px-6 md:px-10 lg:px-16 bg-background text-foreground transition-colors pt-30 relative overflow-hidden">
+      {/* Background aesthetics */}
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        {/* subtle grid */}
+        <svg className="absolute inset-0 w-full h-full opacity-[0.06]" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+              <path d="M 32 0 L 0 0 0 32" fill="none" stroke="currentColor" strokeWidth="0.5" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#grid)" />
+        </svg>
+        {/* soft radial glows */}
+        <div className="absolute -top-24 -left-24 w-[380px] h-[380px] rounded-full blur-3xl opacity-30" style={{background: "radial-gradient(closest-side, #6366f166, transparent)"}} />
+        <div className="absolute bottom-0 -right-24 w-[420px] h-[420px] rounded-full blur-3xl opacity-30" style={{background: "radial-gradient(closest-side, #06b6d466, transparent)"}} />
+      </div>
+
       <div className="max-w-6xl mx-auto">
         <header className="mb-12">
-          <h1 className="text-3xl font-bold tracking-tight">System Nodes Diagram (UI Only)</h1>
-          <p className="text-zinc-500 dark:text-zinc-400 mt-2">Alternating node diagram with smooth, dashed, animated edges. No React Flow logic.</p>
+          <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 border bg-card/60 text-xs text-muted-foreground border-border">
+            <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>UI Only Diagram</span>
+          </div>
+          <h1 className="mt-4 text-4xl md:text-5xl font-black tracking-tight leading-tight">
+            System Nodes
+            <span className="ml-2 bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-sky-500 to-emerald-500">Architecture</span>
+          </h1>
+          <p className="text-base md:text-lg text-muted-foreground mt-3 max-w-3xl">
+            An alternating node layout that visually documents the end-to-end AI pipeline. Smooth, animated, dashed connectors illustrate data flow between steps. This page is purely presentational—no React Flow logic is executed.
+          </p>
         </header>
+
+        {/* Legend */}
+        <section className="mb-10">
+          <div className="rounded-2xl border border-border/80 bg-card/60 backdrop-blur-md p-4 md:p-5">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="h-1.5 w-8 rounded-full bg-gradient-to-r from-indigo-500 via-sky-500 to-emerald-500" />
+              <h2 className="text-sm font-semibold tracking-wide uppercase text-muted-foreground">Legend</h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {diagramNodes.map((n) => {
+                const Icon = n.icon;
+                const color = nodeStyles[n.key].color;
+                return (
+                  <div key={`legend-${n.key}`} className="flex items-center gap-3 rounded-xl border border-border/70 bg-background/60 p-3">
+                    <div className="h-8 w-8 shrink-0 rounded-lg flex items-center justify-center" style={{backgroundColor: `${color}1a`, color}}>
+                      <Icon size={18} />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-sm font-medium truncate">{n.title}</div>
+                      <div className="text-[11px] text-muted-foreground">{n.key}</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
 
         <div className="relative" ref={containerRef}>
 
           {/* SVG edges overlay */}
           <svg ref={svgRef} className="pointer-events-none absolute inset-0 w-full h-full overflow-visible">
+            <defs>
+              <filter id="edge-glow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="4" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
             {edges.map((e, idx) => (
-              <path
-                key={idx}
-                d={makePath(e)}
-                fill="none"
-                stroke={e.color}
-                strokeWidth={2}
-                strokeDasharray="6 8"
-                style={{ animation: "dash 1.5s linear infinite" }}
-                opacity={0.8}
-              />
+              <g key={idx}>
+                {/* Glow stroke */}
+                <path
+                  d={makePath(e)}
+                  fill="none"
+                  stroke={e.color}
+                  strokeWidth={8}
+                  opacity={0.15}
+                  filter="url(#edge-glow)"
+                />
+                {/* Animated dashed stroke */}
+                <path
+                  d={makePath(e)}
+                  fill="none"
+                  stroke={e.color}
+                  strokeWidth={2}
+                  strokeDasharray="6 8"
+                  style={{ animation: "dash 1.5s linear infinite" }}
+                  opacity={0.85}
+                />
+                {/* Arrowhead circles at targets for visual clarity */}
+                <circle cx={e.x2} cy={e.y2} r={3} fill={e.color} opacity={0.9} />
+              </g>
             ))}
           </svg>
 
