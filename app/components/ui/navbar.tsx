@@ -35,10 +35,10 @@ export function Navbar() {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full transition-[background-color,backdrop-filter] duration-300 animate-fade-in`}
+      className={`sticky lg:-mb-22 -mb-20  top-0 z-50 w-full transition-[background-color,backdrop-filter] duration-300 animate-fade-in`}
       style={{ animationDelay: '0.05s' }}
     >
-      <div className="mx-auto w-full max-w-[1672px] px-4 md:px-6 lg:px-8 flex items-center flex-col justify-center h-24 lg:h-28">
+      <div className="mx-auto w-full max-w-[1672px] px-4 md:px-6 lg:px-8 flex items-center flex-col justify-end h-20 lg:h-22">
         <div
           className={`relative flex w-full py-1 items-center justify-between rounded-xl px-3 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:rounded-2xl lg:py-3 lg:pr-2
             border ${scrolled ? "border-foreground/15 shadow-sm" : "border-transparent"}
@@ -75,7 +75,7 @@ export function Navbar() {
             <ul className="flex items-center gap-4 px-2 text-sm font-medium text-foreground/80 xl:gap-6">
               <li>
                 <Link
-                  href="#features"
+                  href="/features"
                   className="rounded-md p-2 transition-colors hover:bg-foreground/5 hover:text-foreground"
                 >
                   {t('navigation.features')}
@@ -83,7 +83,7 @@ export function Navbar() {
               </li>
               <li>
                 <Link
-                  href="#pricing"
+                  href="/pricing"
                   className="rounded-md p-2 transition-colors hover:bg-foreground/5 hover:text-foreground"
                 >
                   {t('navigation.pricing')}
@@ -91,7 +91,7 @@ export function Navbar() {
               </li>
               <li>
                 <Link
-                  href="#docs"
+                  href="/docs"
                   className="rounded-md p-2 transition-colors hover:bg-foreground/5 hover:text-foreground"
                 >
                   {t('navigation.docs')}
@@ -99,7 +99,15 @@ export function Navbar() {
               </li>
               <li>
                 <Link
-                  href="#contact"
+                  href="/system_nodes"
+                  className="rounded-md p-2 transition-colors hover:bg-foreground/5 hover:text-foreground"
+                >
+                  hsafa nodes
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/contact"
                   className="rounded-md p-2 transition-colors hover:bg-foreground/5 hover:text-foreground"
                 >
                   {t('navigation.contact')}
@@ -113,7 +121,7 @@ export function Navbar() {
             <ThemeToggle />
             <LanguageToggle />
             <Link
-              href="#download"
+              href="/download"
               className="relative inline-flex items-center justify-center whitespace-nowrap rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background transition-all hover:opacity-90 hover:shadow-sm"
             >
               <span className="relative z-10 flex items-center gap-2">
@@ -193,22 +201,27 @@ export function Navbar() {
             <nav className="p-2">
               <ul className="flex flex-col divide-y divide-foreground/10">
                 <li>
-                  <Link href="#features" className="block px-3 py-3 text-sm font-medium hover:bg-foreground/5" onClick={() => setMobileOpen(false)}>
+                  <Link href="/features" className="block px-3 py-3 text-sm font-medium hover:bg-foreground/5" onClick={() => setMobileOpen(false)}>
                     {t('navigation.features')}
                   </Link>
                 </li>
                 <li>
-                  <Link href="#pricing" className="block px-3 py-3 text-sm font-medium hover:bg-foreground/5" onClick={() => setMobileOpen(false)}>
+                  <Link href="/pricing" className="block px-3 py-3 text-sm font-medium hover:bg-foreground/5" onClick={() => setMobileOpen(false)}>
                     {t('navigation.pricing')}
                   </Link>
                 </li>
                 <li>
-                  <Link href="#docs" className="block px-3 py-3 text-sm font-medium hover:bg-foreground/5" onClick={() => setMobileOpen(false)}>
+                  <Link href="/docs" className="block px-3 py-3 text-sm font-medium hover:bg-foreground/5" onClick={() => setMobileOpen(false)}>
                     {t('navigation.docs')}
                   </Link>
                 </li>
                 <li>
-                  <Link href="#contact" className="block px-3 py-3 text-sm font-medium hover:bg-foreground/5" onClick={() => setMobileOpen(false)}>
+                  <Link href="/system_nodes" className="block px-3 py-3 text-sm font-medium hover:bg-foreground/5" onClick={() => setMobileOpen(false)}>
+                    hsafa nodes
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/contact" className="block px-3 py-3 text-sm font-medium hover:bg-foreground/5" onClick={() => setMobileOpen(false)}>
                     {t('navigation.contact')}
                   </Link>
                 </li>
@@ -220,7 +233,7 @@ export function Navbar() {
                 <LanguageToggle />
               </div>
               <Link
-                href="#download"
+                href="/download"
                 className="inline-flex items-center justify-center rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background hover:opacity-90"
                 onClick={() => setMobileOpen(false)}
               >
