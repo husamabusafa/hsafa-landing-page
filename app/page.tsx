@@ -161,7 +161,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-      <div className="relative w-full h-full pt-[50px] pl-[50px] max-w-[1200px] mx-auto mt-16">
+      <div className="relative w-[calc(100%-1.5rem)] h-full pt-[50px] pl-[50px] max-w-[1200px] mx-auto mt-16">
             <div className="relative h-[800px] w-full rounded-[28px] overflow-hidden ring-1 ring-border/50 shadow-xl">
               <Image
                 src="/bg4.svg"
