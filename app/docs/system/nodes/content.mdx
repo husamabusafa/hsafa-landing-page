@@ -1,0 +1,55 @@
+## System Nodes
+
+Nodes are composable units. Each node defines inputs, outputs, and side effects. Nodes can be chained and scheduled.
+
+### Basic Node Registration
+
+```typescript
+node.register({
+  name: "summarizer",
+  input: "text",
+  output: "summary",
+  run: async ({ text }) => {
+    const summary = await summarize(text);
+    return { summary };
+  },
+});
+```
+
+### Advanced Node with Validation
+
+```typescript
+import { z } from "zod";
+
+const InputSchema = z.object({
+  text: z.string().min(1),
+  maxLength: z.number().optional().default(100),
+});
+
+node.register({
+  name: "advanced-summarizer",
+  input: InputSchema,
+  output: z.object({ summary: z.string() }),
+  run: async ({ text, maxLength }) => {
+    // Validate input
+    const validated = InputSchema.parse({ text, maxLength });
+    
+    // Process with length limit
+    const summary = await summarize(validated.text, {
+      maxLength: validated.maxLength
+    });
+    
+    return { summary };
+  },
+});
+```
+
+### Chaining Nodes
+
+You can chain multiple nodes together:
+
+```bash
+# CLI example
+hsafa run summarizer --input "Long document text..." | \
+hsafa run translator --target-lang "es"
+```

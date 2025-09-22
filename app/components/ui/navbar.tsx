@@ -34,15 +34,11 @@ export function Navbar() {
   }, [mobileOpen]);
 
   return (
-    <header
-      className={`sticky lg:-mb-22 -mb-20  top-0 z-50 w-full transition-[background-color,backdrop-filter] duration-300 animate-fade-in`}
-      style={{ animationDelay: '0.05s' }}
-    >
-      <div className="mx-auto w-full max-w-[1672px] px-4 md:px-6 lg:px-8 flex items-center flex-col justify-end h-20 lg:h-22">
-        <div
-          className={`relative flex w-full py-1 items-center justify-between rounded-xl px-3 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:rounded-2xl lg:py-3 lg:pr-2
+ 
+        <header
+          className={`sticky lg:-mb-22 -mb-20  top-2 z-50  flex  max-w-[1672px] mx-auto w-[calc(100%-3.5rem)]  py-1 items-center justify-between rounded-xl  px-3 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:rounded-2xl lg:py-3 lg:pr-2
             border ${scrolled ? "border-foreground/15 shadow-sm" : "border-transparent"}
-            backdrop-blur supports-[backdrop-filter]:bg-background/60
+            backdrop-blur-sm supports-[backdrop-filter]:bg-background/60
             ${scrolled ? "bg-background/70" : "bg-background/40"}
             transition-[box-shadow,background-color,border-color,transform] duration-300`}
           style={{
@@ -242,8 +238,7 @@ export function Navbar() {
             </div>
           </div>
 
-        </div>
-      </div>
-    </header>
+        </header>
+  
   );
 }

@@ -110,3 +110,59 @@
     animation: none !important;
   }
 }
+
+/* ==============================
+   MDX / Code block styling
+   ============================== */
+/* Remove default code background inside pre, pretty-code will handle */
+:where(pre) :where(code) {
+  background: transparent !important;
+}
+
+/* Pretty code container */
+:where([data-rehype-pretty-code-fragment]) {
+  position: relative;
+}
+
+/* Code block */
+:where(pre[data-theme]) {
+  background: color-mix(in oklab, var(--muted) 70%, transparent);
+  border: 1px solid color-mix(in oklab, var(--border) 80%, transparent);
+  border-radius: 12px;
+  padding: 14px 16px;
+  overflow-x: auto;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+}
+
+/* Inline code */
+:where(code:not(pre code)) {
+  background: color-mix(in oklab, var(--muted) 85%, transparent);
+  border: 1px solid color-mix(in oklab, var(--border) 80%, transparent);
+  border-radius: 8px;
+  padding: 0.15rem 0.4rem;
+  font-family: var(--font-geist-mono);
+}
+
+/* Highlighted lines */
+:where(pre [data-line][data-highlighted]) {
+  background: color-mix(in oklab, var(--muted) 60%, transparent);
+  border-left: 3px solid color-mix(in oklab, var(--foreground) 50%, transparent);
+}
+
+/* Line numbers (optional – only if enabled in plugin) */
+:where(pre .line-number) {
+  color: var(--muted-foreground);
+}
+
+/* Code titles (if provided via meta) */
+:where([data-rehype-pretty-code-title]) {
+  background: color-mix(in oklab, var(--muted) 80%, transparent);
+  border: 1px solid color-mix(in oklab, var(--border) 80%, transparent);
+  border-bottom: 0;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+

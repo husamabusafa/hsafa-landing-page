@@ -1,12 +1,24 @@
 "use client";
 
-import { useLanguage } from "../components/providers/language-provider";
+import Link from "next/link";
 
 export default function DocsPage() {
-  const { t } = useLanguage();
   return (
-    <main className="min-h-screen flex items-center justify-center pt-28">
-      <h1 className="text-3xl font-semibold">{t("navigation.docs")}</h1>
-    </main>
+    <div>
+      <h2>Welcome to the Hsafa Docs</h2>
+      <p>
+        Explore the Hsafa system architecture and the SDK to build agentic experiences. Use the left sidebar to navigate between sections.
+      </p>
+
+      <h3>Quick links</h3>
+      <ul>
+        <li>
+          <Link href="/docs/system/overview">System · Overview</Link>
+        </li>
+        <li>
+          <Link href="/docs/sdk/getting-started">SDK · Getting Started</Link>
+        </li>
+      </ul>
+    </div>
   );
 }

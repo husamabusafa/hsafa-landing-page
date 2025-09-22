@@ -1,0 +1,86 @@
+## Examples
+
+### Basic Usage
+
+```typescript
+import { Hsafa } from '@hsafa/sdk';
+
+const client = new Hsafa({ 
+  apiKey: process.env.HSAFA_API_KEY! 
+});
+
+const result = await client.nodes.invoke('summarizer', { 
+  text: 'Long text to summarize...' 
+});
+
+console.log(result.summary);
+```
+
+### Error Handling
+
+```typescript
+try {
+  const result = await client.nodes.invoke('summarizer', {
+    text: 'Your content here'
+  });
+  
+  if (result.success) {
+    console.log('Summary:', result.summary);
+  } else {
+    console.error('Failed:', result.error);
+  }
+} catch (error) {
+  console.error('Network error:', error.message);
+}
+```
+
+### Batch Processing
+
+```typescript
+const texts = [
+  'First document to process...',
+  'Second document content...',
+  'Third document text...'
+];
+
+const results = await Promise.all(
+  texts.map(text => 
+    client.nodes.invoke('summarizer', { text })
+  )
+);
+
+results.forEach((result, index) => {
+  console.log(`Summary ${index + 1}:`, result.summary);
+});
+```
+
+### Configuration Options
+
+```typescript
+const client = new Hsafa({
+  apiKey: process.env.HSAFA_API_KEY!,
+  baseUrl: 'https://api.hsafa.com',
+  timeout: 30000,
+  retries: 3
+});
+```
+
+### Using with Environment Variables
+
+Create a `.env.local` file:
+
+```bash
+HSAFA_API_KEY=your_api_key_here
+HSAFA_BASE_URL=https://api.hsafa.com
+```
+
+Then use in your code:
+
+```typescript
+import { Hsafa } from '@hsafa/sdk';
+
+const client = new Hsafa({
+  apiKey: process.env.HSAFA_API_KEY!,
+  baseUrl: process.env.HSAFA_BASE_URL
+});
+```

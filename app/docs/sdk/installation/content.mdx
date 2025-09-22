@@ -1,0 +1,51 @@
+## Installation
+
+### Package Manager Installation
+
+```bash
+# Using npm
+npm install @hsafa/sdk
+
+# Using yarn
+yarn add @hsafa/sdk
+
+# Using pnpm
+pnpm add @hsafa/sdk
+```
+
+### Verify Installation
+
+```javascript
+// test.js
+const { Hsafa } = require('@hsafa/sdk');
+console.log('Hsafa SDK version:', Hsafa.version);
+```
+
+### TypeScript Setup
+
+```typescript
+// types/hsafa.d.ts
+declare module '@hsafa/sdk' {
+  export interface HsafaConfig {
+    apiKey: string;
+    baseUrl?: string;
+    timeout?: number;
+  }
+  
+  export class Hsafa {
+    constructor(config: HsafaConfig);
+    nodes: {
+      invoke(name: string, input: any): Promise<any>;
+    };
+  }
+}
+```
+
+### Environment Configuration
+
+```bash
+# .env.local
+HSAFA_API_KEY=your_api_key_here
+HSAFA_BASE_URL=https://api.hsafa.com
+HSAFA_TIMEOUT=30000
+```
