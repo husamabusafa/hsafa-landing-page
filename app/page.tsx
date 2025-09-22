@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { Brain, Sparkles, KeyRound, ChevronDown, Paperclip, Link2, ArrowUp } from "lucide-react";
 
 import { useLanguage } from "./components/providers/language-provider";
 
@@ -100,8 +101,100 @@ export default function Home() {
               </div>
             </div>
             <div className="pb-[50px] pr-[50px] absolute top-0 left-0 w-full h-full ">
-              <div className="bg-muted/60 rounded-[28px] p-6  h-[350px] w-full backdrop-blur-xl shadow-xl"></div>
+              <div className="bg-muted/60 rounded-[28px] p-6  h-[350px] w-full backdrop-blur-xl shadow-2xl flex items-center justify-center">
+                {/* Dotted background container */}
+                <div
+                  className="relative w-full h-full rounded-2xl p-6 md:p-8"
+                  style={{
+                    backgroundImage: `radial-gradient(rgba(148, 163, 184, 0.22) 1px, transparent 1px)`,
+                    backgroundSize: '18px 18px',
+                    backgroundPosition: '0 0',
+                  }}
+                >
+                  {/* Node UI Card */}
+                  <div
+                    className="relative mx-auto group flex flex-col rounded-3xl ring-1 ring-border/50 bg-card/80 text-card-foreground backdrop-blur-xl shadow-2xl w-[360px]"
+                  >
+                    {/* Subtle gradient border glow */}
+                    <div
+                      className="pointer-events-none absolute -inset-0.5 rounded-[28px] opacity-60"
+                      style={{
+                        background: 'linear-gradient(180deg, rgba(99,102,241,0.25), rgba(99,102,241,0.06))',
+                        filter: 'blur(8px)',
+                      }}
+                      aria-hidden
+                    />
+
+                    {/* Handle + connector (bottom only) */}
+                    <div
+                      className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full border-[3px] backdrop-blur-sm z-50"
+                      style={{ backgroundColor: '#8b5cf699', borderColor: '#8b5cf6', boxShadow: '0 0 8px #8b5cf6aa, 0 0 18px #8b5cf666, 0 0 36px #8b5cf644' }}
+                      aria-hidden
+                    />
+                    <svg
+                      className="absolute left-1/2 -translate-x-1/2 bottom-[-110px] h-28 w-8 z-40"
+                      aria-hidden
+                    >
+                      <line
+                        x1="50%"
+                        y1="0"
+                        x2="50%"
+                        y2="100%"
+                        stroke="#8b5cf6"
+                        strokeWidth="2"
+                        strokeDasharray="6 8"
+                        style={{ animation: 'dashY 1.5s linear infinite' }}
+                      />
+                    </svg>
+
+                    {/* Header */}
+                    <div className="flex items-center justify-between gap-4 p-6 pb-4 relative z-10">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 min-w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl border border-indigo-400/20 bg-indigo-500/10 text-indigo-400 dark:text-indigo-300">
+                          <Brain size={22} />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-xl text-foreground">AI Model</h3>
+                          <div className="flex items-center gap-2 mt-1">
+                            <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                            <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Ready</span>
+                          </div>
+                        </div>
+                      </div>
+                      <button
+                        className="w-9 h-9 rounded-full bg-muted/50 border border-border/60 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/70"
+                        aria-label="Toggle"
+                      >
+                        <ChevronDown size={18} />
+                      </button>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="px-6"><div className="w-full h-px bg-border/60" /></div>
+
+                    {/* Body */}
+                    <div className="px-6 py-4 pb-6 relative z-10">
+                      {/* Model row */}
+                      <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                        <Sparkles size={16} className="text-muted-foreground" />
+                        <span className="font-semibold text-muted-foreground">Model:</span>
+                        <span className="font-mono font-bold text-foreground">gpt-5</span>
+                      </div>
+                      {/* Provider row */}
+                      <div className="flex items-center gap-3 text-sm text-muted-foreground mt-3">
+                        <KeyRound size={16} className="text-muted-foreground" />
+                        <span className="font-semibold text-muted-foreground">Provider:</span>
+                        <span className="inline-flex items-center rounded-full bg-emerald-500 text-white text-[12px] px-2.5 py-1 font-semibold leading-none">openai</span>
+                      </div>
+                    </div>
+                    <style>{`
+                      @keyframes dashY { to { stroke-dashoffset: -28; } }
+                    `}</style>
+                  </div>
+                </div>
+              </div>
             </div>
+           
           </div>
           {/* Text column - right on md+ */}
           <div className="order-2 md:order-2">
@@ -156,7 +249,63 @@ export default function Home() {
             </div>
 
             <div className="pb-[50px] pr-[50px] absolute top-0 left-0 w-full h-full ">
-              <div className="bg-muted/60 rounded-[28px] p-6  h-[350px] w-full backdrop-blur-xl shadow-2xl"></div>
+              <div className="bg-muted/60 rounded-[28px] h-[350px] w-full backdrop-blur-xl shadow-2xl flex items-center justify-center">
+                {/* Dotted background container (theme-aware) */}
+                <div
+                  className="relative w-full h-full rounded-2xl  md:p-8"
+                  style={{
+                    backgroundImage: `radial-gradient(hsl(var(--border) / 0.25) 1px, transparent 1px)`,
+                    backgroundSize: '16px 16px',
+                    backgroundPosition: '0 0',
+                  }}
+                >
+                  {/* Sticky bottom prompt UI (static) */}
+                  <div className=" mt-auto pb-2 pt-1 w-full h-full p-2 rounded-2xl flex items-center justify-center">
+                    <div className="relative flex-1 h-[150px]">
+                      <div
+                        className="relative w-full h-full rounded-2xl pt-4 pb-12 max-w-[500px] mx-auto"
+                        style={{
+                          border: '1px solid rgb(42, 44, 51)',
+                          backgroundColor: 'rgb(23, 24, 28)'
+                        }}
+                      >
+                        {/* Textarea mimic */}
+                        <div className="px-4">
+                          <div
+                            aria-label="Prompt"
+                            className="min-h-[48px] w-full text-[15px] leading-[1.6] text-foreground/90"
+                            style={{ backgroundColor: 'transparent' }}
+                          >
+                            <span className="text-muted-foreground select-none">Ask your question...</span>
+                          </div>
+                        </div>
+
+                        {/* Left actions */}
+                        <div className="absolute bottom-2 left-2 flex items-center gap-1 text-muted-foreground" style={{ color: 'rgb(154, 160, 166)' }}>
+                          <button aria-label="Attach files" className="rounded-lg p-2 transition" style={{ backgroundColor: 'transparent', border: 'none' }}>
+                            <Paperclip size={18} />
+                          </button>
+                          <button aria-label="Insert link" className="rounded-lg p-2 transition" style={{ backgroundColor: 'transparent', border: 'none' }}>
+                            <Link2 size={18} />
+                          </button>
+                        </div>
+
+                        {/* Right action (disabled) */}
+                        <div className="absolute bottom-2 right-2">
+                          <button
+                            aria-label="Send"
+                            disabled
+                            className="rounded-xl p-3 transition ease-out flex items-center justify-center opacity-40 cursor-not-allowed"
+                            style={{ border: '1px solid rgb(42, 44, 51)', backgroundColor: 'rgb(18, 19, 24)', color: 'rgb(154, 160, 166)' }}
+                          >
+                            <ArrowUp size={18} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
