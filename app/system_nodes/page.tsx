@@ -221,12 +221,14 @@ function DiagramRow({
   total,
   setTopHandleRef,
   setBottomHandleRef,
+  rowRef,
 }: {
   index: number;
   node: DiagramNode;
   total: number;
   setTopHandleRef: (idx: number, el: HTMLDivElement | null) => void;
   setBottomHandleRef: (idx: number, el: HTMLDivElement | null) => void;
+  rowRef?: (el: HTMLDivElement | null) => void;
 }) {
   const side: "right" | "left" = index % 2 === 0 ? "right" : "left";
   const isFirst = index === 0;
@@ -234,7 +236,7 @@ function DiagramRow({
   const color = nodeStyles[node.key].color;
 
   return (
-    <div className="relative py-12">
+    <div className="relative py-12" ref={rowRef}>
 
       {/* Two-column layout */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
@@ -283,12 +285,26 @@ export default function Page() {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const topHandleRefs = useRef<(HTMLDivElement | null)[]>(Array(diagramNodes.length).fill(null));
   const bottomHandleRefs = useRef<(HTMLDivElement | null)[]>(Array(diagramNodes.length).fill(null));
+  const nodeSectionRefs = useRef<Record<NodeKey, HTMLDivElement | null>>({} as Record<NodeKey, HTMLDivElement | null>);
 
   const setTopHandleRef = useCallback((idx: number, el: HTMLDivElement | null) => {
     topHandleRefs.current[idx] = el;
   }, []);
   const setBottomHandleRef = useCallback((idx: number, el: HTMLDivElement | null) => {
     bottomHandleRefs.current[idx] = el;
+  }, []);
+
+  const setNodeSectionRef = useCallback((key: NodeKey, el: HTMLDivElement | null) => {
+    nodeSectionRefs.current[key] = el;
+  }, []);
+
+  const scrollToNode = useCallback((key: NodeKey) => {
+    const el = nodeSectionRefs.current[key];
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const offset = 100; // account for fixed navbar/padding
+    const y = window.scrollY + rect.top - offset;
+    window.scrollTo({ top: y, behavior: "smooth" });
   }, []);
 
   const [edges, setEdges] = useState<Array<{ x1: number; y1: number; x2: number; y2: number; color: string }>>([]);
@@ -351,41 +367,48 @@ export default function Page() {
   }, []);
 
   return (
-    <main className="min-h-screen w-full py-12 px-6 md:px-10 lg:px-16 bg-background text-foreground transition-colors pt-30 relative overflow-hidden">
-      {/* Background aesthetics */}
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        {/* subtle grid */}
-        <svg className="absolute inset-0 w-full h-full opacity-[0.06]" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
-              <path d="M 32 0 L 0 0 0 32" fill="none" stroke="currentColor" strokeWidth="0.5" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#grid)" />
-        </svg>
-        {/* soft radial glows */}
-        <div className="absolute -top-24 -left-24 w-[380px] h-[380px] rounded-full blur-3xl opacity-30" style={{background: "radial-gradient(closest-side, #6366f166, transparent)"}} />
-        <div className="absolute bottom-0 -right-24 w-[420px] h-[420px] rounded-full blur-3xl opacity-30" style={{background: "radial-gradient(closest-side, #06b6d466, transparent)"}} />
+    <main className="min-h-screen bg-background text-foreground transition-colors pt-28 relative overflow-hidden ">
+      {/* Hero banner (aligned with home theme) */}
+      <div className="relative mx-auto w-[calc(100%-1.5rem)] sm:w-[calc(100%-3rem)] md:w-[calc(100%-4rem)] max-w-[1372px] overflow-hidden rounded-[28px] h-[260px] sm:h-[300px] md:h-[360px]">
+        <div className="absolute inset-0">
+          <img
+            src="/bg1.svg"
+            alt=""
+            className="h-full w-full object-cover object-center"
+          />
+          <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-black/60 via-background/20 to-transparent" />
+        </div>
+        <div className="absolute inset-0 z-20 flex items-center justify-center px-6 sm:px-10 md:px-14">
+          <div className="mx-auto max-w-3xl text-center">
+            <span className="inline-flex items-center rounded-full bg-muted/60 px-3 py-1 text-xs font-medium text-muted-foreground ring-1 ring-border/50">
+              UI Only Diagram
+            </span>
+            <h1 className="mt-4 text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-black to-black/70">
+              System Nodes <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-sky-500 to-emerald-500">Architecture</span>
+            </h1>
+            <p className="mt-3 text-sm sm:text-base md:text-lg text-black">
+              An alternating node layout that visually documents the end-to-end AI pipeline. Smooth, animated, dashed connectors illustrate data flow between steps. This page is purely presentational—no React Flow logic is executed.
+            </p>
+          </div>
+        </div>
       </div>
 
-      <div className="max-w-6xl mx-auto">
-        <header className="mb-12">
-          <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 border bg-card/60 text-xs text-muted-foreground border-border">
+      {/* Soft glows (match site vibe) */}
+      <div className="pointer-events-none absolute -top-24 -left-24 h-72 w-72 rounded-full bg-emerald-500/20 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-blue-500/20 blur-3xl" />
+
+      {/* Content container */}
+      <div className="mt-10 mx-auto w-[calc(100%-1.5rem)] sm:w-[calc(100%-3rem)] md:w-[calc(100%-4rem)] max-w-[1372px]">
+        <header className="mb-8 sm:mb-10 md:mb-12">
+          <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 border bg-muted/60 text-xs text-muted-foreground border-border ring-1 ring-border/50">
             <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>UI Only Diagram</span>
+            <span>Legend & Flow</span>
           </div>
-          <h1 className="mt-4 text-4xl md:text-5xl font-black tracking-tight leading-tight">
-            System Nodes
-            <span className="ml-2 bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-sky-500 to-emerald-500">Architecture</span>
-          </h1>
-          <p className="text-base md:text-lg text-muted-foreground mt-3 max-w-3xl">
-            An alternating node layout that visually documents the end-to-end AI pipeline. Smooth, animated, dashed connectors illustrate data flow between steps. This page is purely presentational—no React Flow logic is executed.
-          </p>
         </header>
 
         {/* Legend */}
         <section className="mb-10">
-          <div className="rounded-2xl border border-border/80 bg-card/60 backdrop-blur-md p-4 md:p-5">
+          <div className="rounded-[28px] ring-1 ring-border/50 bg-muted/60 backdrop-blur-xl p-4 md:p-5 shadow-xl">
             <div className="flex items-center gap-3 mb-3">
               <div className="h-1.5 w-8 rounded-full bg-gradient-to-r from-indigo-500 via-sky-500 to-emerald-500" />
               <h2 className="text-sm font-semibold tracking-wide uppercase text-muted-foreground">Legend</h2>
@@ -395,7 +418,19 @@ export default function Page() {
                 const Icon = n.icon;
                 const color = nodeStyles[n.key].color;
                 return (
-                  <div key={`legend-${n.key}`} className="flex items-center gap-3 rounded-xl border border-border/70 bg-background/60 p-3">
+                  <div
+                    key={`legend-${n.key}`}
+                    className="flex items-center gap-3 rounded-xl ring-1 ring-border/50 bg-background/60 p-3 shadow-md cursor-pointer hover:bg-background/80 transition-colors"
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => scrollToNode(n.key)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        scrollToNode(n.key);
+                      }
+                    }}
+                  >
                     <div className="h-8 w-8 shrink-0 rounded-lg flex items-center justify-center" style={{backgroundColor: `${color}1a`, color}}>
                       <Icon size={18} />
                     </div>
@@ -458,6 +493,7 @@ export default function Page() {
               total={diagramNodes.length}
               setTopHandleRef={setTopHandleRef}
               setBottomHandleRef={setBottomHandleRef}
+              rowRef={(el) => setNodeSectionRef(n.key, el)}
             />
           ))}
         </div>
