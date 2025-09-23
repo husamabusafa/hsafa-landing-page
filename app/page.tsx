@@ -263,7 +263,7 @@ export default function Home() {
                   <div className=" mt-auto pb-2 pt-1 w-full h-full p-2 rounded-2xl flex items-center justify-center">
                     <div className="relative flex-1 h-[150px]">
                       <div
-                        className="relative w-full h-full rounded-2xl pt-4 pb-12 max-w-[500px] mx-auto"
+                        className="relative w-full h-full rounded-2xl pt-4 pb-12 max-w-[500px] mx-auto shadow-2xl"
                         style={{
                           border: '1px solid rgb(42, 44, 51)',
                           backgroundColor: 'rgb(23, 24, 28)'

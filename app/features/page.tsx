@@ -2,31 +2,34 @@
 
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
-import { motion } from 'framer-motion'
 
 const clamp = (value: number, min = 0, max = 1) => Math.min(Math.max(value, min), max)
 
-function useScrollProgressForSections(count: number) {
-  const sectionRefs = useRef<(HTMLDivElement | null)[]>([])
+// Remap a linear 0..1 t to linger longer on the current image and compress the transition.
+// transitionWidth controls how much of the segment (0..1) is used for the crossfade at the end.
+// e.g., 0.15 means 85% linger, 15% fast transition.
+function remapForQuickTransition(t: number, transitionWidth = 0.18) {
+  const w = clamp(transitionWidth, 0.01, 0.5)
+  if (t <= 1 - w) return 0
+  const x = (t - (1 - w)) / w // 0..1 in the transition window
+  // smoothstep for a smooth but quick rise
+  const s = x * x * (3 - 2 * x)
+  return clamp(s, 0, 1)
+}
+
+function useScrollProgress(sectionRef: React.RefObject<HTMLDivElement | null>) {
   const rafRef = useRef<number | null>(null)
-  const [progresses, setProgresses] = useState<number[]>(Array(count).fill(0))
+  const [progress, setProgress] = useState(0)
 
   useEffect(() => {
     const update = () => {
+      const el = sectionRef.current
+      if (!el) { rafRef.current = null; return }
       const vh = window.innerHeight
-      const next = sectionRefs.current.map((el) => {
-        if (!el) return 0
-        const rect = el.getBoundingClientRect()
-        // Two-viewport section: grow (0→1) over first 100vh, shrink (1→0) over second 100vh
-        const p = clamp(-rect.top / vh, 0, 2)
-        const mirrored = p <= 1 ? p : 2 - p
-        return mirrored
-      })
-      setProgresses((prev) => {
-        let changed = false
-        for (let i = 0; i < next.length; i++) if (Math.abs(prev[i] - next[i]) > 0.0005) { changed = true; break }
-        return changed ? next : prev
-      })
+      const rect = el.getBoundingClientRect()
+      const total = Math.max(rect.height - vh, 1)
+      const p = clamp(-rect.top / total, 0, 1)
+      setProgress((prev) => (Math.abs(prev - p) > 0.0005 ? p : prev))
       rafRef.current = null
     }
 
@@ -35,11 +38,7 @@ function useScrollProgressForSections(count: number) {
       rafRef.current = window.requestAnimationFrame(update)
     }
 
-    window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(() => {
-        onScrollOrResize()
-      })
-    })
+    window.requestAnimationFrame(onScrollOrResize)
     window.addEventListener('scroll', onScrollOrResize, { passive: true })
     window.addEventListener('resize', onScrollOrResize)
 
@@ -48,208 +47,124 @@ function useScrollProgressForSections(count: number) {
       window.removeEventListener('scroll', onScrollOrResize)
       window.removeEventListener('resize', onScrollOrResize)
     }
-  }, [])
+  }, [sectionRef])
 
-  return { sectionRefs, progresses }
+  return progress
 }
 
-function BoxSection({ src, progress, children }: { src: string; progress: number; children?: React.ReactNode }) {
-  const scale = 0.86 + progress * 0.14 // 0.86 → 1.00, then back
-  const radius = 28 * (1 - progress) // 28 → 0 → 28
+function FeatureBox({ images, progress }: { images: string[]; progress: number }) {
+  const n = images.length
+  const exact = progress * (n - 1)
+  const i = Math.floor(exact)
+  const t = exact - i
+  // Remap t so opacity stays at current image longer and transitions quickly near the boundary
+  const tQuick = remapForQuickTransition(t, 0.28)
 
-  return (
-    <div className="sticky top-0 h-screen overflow-hidden">
-      <div
-        className="absolute inset-0 shadow-2xl"
-        style={{
-          transform: `scale(${scale})`,
-          transformOrigin: 'center',
-          borderRadius: `${radius}px`,
-          overflow: 'hidden',
-        }}
-      >
-        <Image src={src} alt="" fill sizes="100vw" className="object-cover" priority />
-        {/* darken for legibility */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/50" />
-        {/* content overlay */}
-        <div className="absolute inset-0">{children}</div>
-      </div>
-    </div>
-  )
-}
-
-// Minimal helpers
-const easeInOut = (t: number) => 0.5 - Math.cos(Math.PI * t) / 2
-const lerp = (a: number, b: number, t: number) => a + (b - a) * t
-
-function ArrowImg({ src, x, y, r = 0, scale = 1, opacity = 1 }: { src: string; x: string; y: string; r?: number; scale?: number; opacity?: number }) {
-  return (
-    <img
-      src={src}
-      alt=""
-      style={{
-        position: 'absolute',
-        left: x,
-        top: y,
-        transform: `translate(-50%, -50%) rotate(${r}deg) scale(${scale})`,
-        opacity,
-        filter: 'invert(1)', // turn white for dark bg
-        width: '180px',
-        height: 'auto',
-        pointerEvents: 'none',
-      }}
-    />
-  )
-}
-
-function GlassCard({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
   return (
     <div
-      className="rounded-2xl p-6 md:p-8 backdrop-blur-md bg-white/10 text-white shadow-xl border border-white/10 max-w-xl"
-      style={style}
+      className="relative mx-auto h-[calc(100vh-9rem)] w-[calc(100%-1.5rem)] sm:w-[calc(100%-3rem)] md:w-[calc(100%-4rem)] max-w-[1800px] overflow-hidden rounded-[28px]"
     >
-      {children}
+      {images.map((src, idx) => {
+        let opacity = 0
+        if (idx === i) opacity = 1 - tQuick
+        else if (idx === i + 1) opacity = tQuick
+        return (
+          <Image
+            key={src}
+            src={src}
+            alt=""
+            fill
+            sizes="(max-width: 768px) 100vw, 1800px"
+
+            className="object-cover "
+            style={{ opacity }}
+            priority={idx <= 1}
+          />
+        )
+      })}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/15 to-black/40 pointer-events-none" />
     </div>
   )
 }
 
+// Removed additional UI helpers and arrows to keep a single, consistent box
+
 export default function FeaturesPage() {
-  const images = ['/bg2.svg', '/bg3.svg', '/bg4.svg', '/bg1.svg']
-  const { sectionRefs, progresses } = useScrollProgressForSections(images.length)
+  const images = ['/bg2.svg', '/bg3.svg', '/bg4.svg', '/bg1.svg','/bg2.svg', '/bg3.svg', '/bg4.svg', '/bg1.svg']
+  const sectionRef = useRef<HTMLDivElement | null>(null)
+  const progress = useScrollProgress(sectionRef)
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior })
   }, [])
 
+  // Reveal the feature box when it enters the viewport
+  const revealRef = useRef<HTMLDivElement | null>(null)
+  const [revealed, setRevealed] = useState(false)
+  useEffect(() => {
+    const el = revealRef.current
+    if (!el) return
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setRevealed(true)
+      },
+      { threshold: 0.2 }
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      {/* Section 1 — Hero */}
-      <section ref={(el) => { sectionRefs.current[0] = el }} className="relative min-h-[300vh]">
-        <BoxSection src={images[0]} progress={progresses[0] ?? 0}>
-          {(() => {
-            const p = progresses[0] ?? 0
-            const showTitle = easeInOut(clamp(p * 1.2))
-            const showSub = easeInOut(clamp((p - 0.2) * 1.4))
-            const arrowO = clamp((p - 0.35) * 2)
-            return (
-              <div className="absolute inset-0 grid place-items-start justify-center">
-                <div className="px-6 text-center">
-                  <motion.h1
-                    className="text-4xl md:text-6xl font-bold tracking-tight text-white"
-                  >
-                    Hsafa SDK
-                  </motion.h1>
-                  <motion.p
-                    className="mt-4 text-lg md:text-2xl text-white/80 max-w-2xl mx-auto"
-                    style={{
-                      opacity: showSub,
-                      transform: `translateY(${lerp(24, 0, showSub)}px)`,
-                    }}
-                  >
-                    Scroll to explore features with motion, context, and delightful details.
-                  </motion.p>
-                </div>
-                {/* hand‑drawn arrow appears late */}
-                <ArrowImg src="https://www.svgrepo.com/show/147200/arrow-squiggly.svg" x="70%" y="65%" r={-15} scale={1.1}
-                  opacity={arrowO} />
-              </div>
-            )
-          })()}
-        </BoxSection>
+    <div className="min-h-screen bg-background text-foreground pt-28">
+      {/* Intro Hero (full-page, glass + glow style) */}
+      <section className="relative mx-auto max-md:h-[50vh] max-sm:min-h-[400px] max-md:min-h-[600px] md:min-h-[800px] md:h-[calc(100vh-9rem)] w-[calc(100%-1.5rem)] sm:w-[calc(100%-3rem)] md:w-[calc(100%-4rem)] max-w-[1800px] overflow-hidden rounded-[28px] ring-1 ring-border/50 bg-gradient-to-br from-muted/60 via-background/60 to-muted/40 backdrop-blur-xl shadow-2xl">
+        {/* Decorative gradient glows */}
+        <div className="pointer-events-none absolute -top-24 -left-24 h-72 w-72 rounded-full bg-emerald-500/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-blue-500/20 blur-3xl" />
+
+        {/* Centered content (quote-style figure) */}
+        <div className="relative p-8 sm:p-10 md:p-14 h-full grid place-items-center">
+          <figure className="mx-auto max-w-4xl text-center">
+            <span className="inline-flex items-center rounded-full bg-muted/60 px-3 py-1 text-xs font-medium text-muted-foreground ring-1 ring-border/50">
+              Features
+            </span>
+
+            <h1 className="mt-4 text-4xl sm:text-[40px] md:text-6xl leading-tight font-semibold tracking-tight">
+              Explore Our Features
+            </h1>
+            <p className="mt-3 text-base sm:text-lg md:text-xl text-muted-foreground">
+              Discover how our platform streamlines your workflow with powerful automations, intuitive tooling,
+              and a delightful developer experience.
+            </p>
+
+            <div className="mt-6 flex items-center justify-center gap-3">
+              <a href="#preview" className="inline-flex items-center justify-center rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-all hover:opacity-90">
+                Preview features
+              </a>
+              <a href="/docs" className="inline-flex items-center justify-center rounded-full border border-foreground/15 px-5 py-2.5 text-sm font-medium hover:bg-foreground/5">
+                Read the Docs
+              </a>
+            </div>
+          </figure>
+
+          {/* Scroll-down indicator */}
+          <a href="#preview" className="absolute bottom-6 left-1/2 -translate-x-1/2 inline-flex items-center justify-center w-10 h-10 rounded-full border border-foreground/15 text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition animate-bounce" aria-label="Scroll down">
+            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          </a>
+        </div>
       </section>
 
-      {/* Section 2 — Feature Cards */}
-      <section ref={(el) => { sectionRefs.current[1] = el }} className="relative min-h-[300vh]">
-        <BoxSection src={images[1]} progress={progresses[1] ?? 0}>
-          {(() => {
-            const p = progresses[1] ?? 0
-            const a = easeInOut(clamp((p - 0.05) * 2))
-            const b = easeInOut(clamp((p - 0.2) * 2))
-            const c = easeInOut(clamp((p - 0.35) * 2))
-            return (
-              <div className="absolute inset-0 grid place-items-center px-6">
-                <div className="grid md:grid-cols-3 gap-6 max-w-6xl w-full">
-                  <GlassCard style={{ opacity: a, transform: `translateY(${lerp(40, 0, a)}px)` }}>
-                    <h3 className="text-xl font-semibold">Speed</h3>
-                    <p className="mt-2 text-white/80">Optimized rendering and smooth scroll-linked animations via rAF.</p>
-                  </GlassCard>
-                  <GlassCard style={{ opacity: b, transform: `translateY(${lerp(40, 0, b)}px)` }}>
-                    <h3 className="text-xl font-semibold">Clarity</h3>
-                    <p className="mt-2 text-white/80">Readable layouts with glass panels over hi‑res imagery.</p>
-                  </GlassCard>
-                  <GlassCard style={{ opacity: c, transform: `translateY(${lerp(40, 0, c)}px)` }}>
-                    <h3 className="text-xl font-semibold">Delight</h3>
-                    <p className="mt-2 text-white/80">Hand‑drawn arrows highlight what matters as you scroll.</p>
-                  </GlassCard>
-                </div>
-                <ArrowImg src="https://www.svgrepo.com/show/141203/curved-arrow.svg" x="20%" y="35%" r={-60} scale={1}
-                  opacity={clamp((p - 0.15) * 2)} />
-              </div>
-            )
-          })()}
-        </BoxSection>
-      </section>
-
-      {/* Section 3 — Image + Callouts */}
-      <section ref={(el) => { sectionRefs.current[2] = el }} className="relative min-h-[300vh]">
-        <BoxSection src={images[2]} progress={progresses[2] ?? 0}>
-          {(() => {
-            const p = progresses[2] ?? 0
-            const imgReveal = easeInOut(clamp(p * 1.2))
-            const callout1 = easeInOut(clamp((p - 0.25) * 2))
-            const callout2 = easeInOut(clamp((p - 0.4) * 2))
-            return (
-              <div className="absolute inset-0">
-                <motion.div
-                  className="absolute right-6 md:right-16 top-1/2 -translate-y-1/2 rounded-3xl overflow-hidden shadow-2xl border border-white/10"
-                  style={{ width: 'min(520px, 42vw)', opacity: imgReveal, transform: `translate(0, calc(-50% + ${lerp(30, 0, imgReveal)}px))` }}
-                >
-                  <Image src="/demo-analytics.jpg" alt="Demo" width={1040} height={680} className="object-cover" />
-                </motion.div>
-
-                <GlassCard style={{ position: 'absolute', left: '8%', top: '28%', opacity: callout1, transform: `translateY(${lerp(20, 0, callout1)}px)` }}>
-                  <div className="text-sm uppercase tracking-widest text-white/70">Insight</div>
-                  <div className="mt-1 text-2xl font-semibold">Real‑time metrics</div>
-                  <div className="mt-2 text-white/80">Stream updates as users interact—no refresh needed.</div>
-                </GlassCard>
-                <ArrowImg src="https://www.svgrepo.com/show/100299/arrow-with-scribble.svg" x="40%" y="35%" r={-20} scale={1.1}
-                  opacity={clamp((p - 0.3) * 2)} />
-
-                <GlassCard style={{ position: 'absolute', left: '10%', bottom: '18%', opacity: callout2, transform: `translateY(${lerp(20, 0, callout2)}px)` }}>
-                  <div className="text-sm uppercase tracking-widest text-white/70">Control</div>
-                  <div className="mt-1 text-2xl font-semibold">Composable animations</div>
-                  <div className="mt-2 text-white/80">Use a simple progress value to animate anything.</div>
-                </GlassCard>
-              </div>
-            )
-          })()}
-        </BoxSection>
-      </section>
-
-      {/* Section 4 — CTA */}
-      <section ref={(el) => { sectionRefs.current[3] = el }} className="relative min-h-[300vh]">
-        <BoxSection src={images[3]} progress={progresses[3] ?? 0}>
-          {(() => {
-            const p = progresses[3] ?? 0
-            const title = easeInOut(clamp((p - 0.05) * 1.6))
-            const cta = easeInOut(clamp((p - 0.25) * 1.8))
-            const arrow = clamp((p - 0.35) * 2)
-            return (
-              <div className="absolute inset-0 grid place-items-center px-6">
-                <motion.div className="text-center max-w-2xl" style={{ opacity: title, transform: `translateY(${lerp(24, 0, title)}px)` }}>
-                  <h2 className="text-4xl md:text-5xl font-bold text-white">Ready to ship modern scroll‑tales?</h2>
-                  <p className="mt-4 text-white/80 text-lg">Hook into the progress and stage content like a keynote—no heavy libs required.</p>
-                </motion.div>
-                <motion.div className="mt-8" style={{ opacity: cta, transform: `translateY(${lerp(16, 0, cta)}px)` }}>
-                  <a href="#" className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white text-black font-semibold shadow-lg hover:shadow-xl transition">Get Started</a>
-                </motion.div>
-                <ArrowImg src="https://www.svgrepo.com/show/123307/left-arrow-hand-drawn-outline.svg" x="52%" y="64%" r={30} scale={1}
-                  opacity={arrow} />
-              </div>
-            )
-          })()}
-        </BoxSection>
-      </section>
+      {/* Scroll-driven Feature Box Section */}
+      <div ref={sectionRef} id="preview" className="min-h-[600vh]">
+        <div
+          ref={revealRef}
+          className={`sticky top-0 h-screen grid place-items-start pt-[90px] transition-all duration-700 ease-out ${
+            revealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+          }`}
+        >
+          <FeatureBox images={images} progress={progress} />
+        </div>
+      </div>
     </div>
   )
 }
