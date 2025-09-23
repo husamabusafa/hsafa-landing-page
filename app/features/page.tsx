@@ -70,7 +70,7 @@ function FeatureBox({ images, progress }: { images: string[]; progress: number }
         else if (idx === i + 1) opacity = tQuick
         return (
           <Image
-            key={src}
+            key={`${src}-${idx}`}
             src={src}
             alt=""
             fill
