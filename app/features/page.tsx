@@ -114,8 +114,62 @@ export default function FeaturesPage() {
     return () => io.disconnect()
   }, [])
 
+  // Feature titles for the left navigator (aligned with images)
+  const featureTitles = [
+    'Feature 1',
+    'Feature 2',
+    'Feature 3',
+    'Feature 4',
+    'Feature 5',
+    'Feature 6',
+    'Feature 7',
+    'Feature 8',
+  ]
+
+  // Determine currently active feature based on scroll progress
+  const activeIndex = Math.round(progress * (images.length - 1))
+
+  // Smoothly scroll to a specific feature segment
+  const handleNavClick = (index: number) => {
+    const el = sectionRef.current
+    if (!el) return
+    const totalScrollable = Math.max(el.scrollHeight - window.innerHeight, 1)
+    const step = totalScrollable / (images.length - 1)
+    const targetTop = el.offsetTop + step * index
+    window.scrollTo({ top: targetTop, left: 0, behavior: 'smooth' })
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground pt-28">
+      {/* Floating left navigator (hidden on small screens) */}
+      <nav className="fixed left-4 top-1/2 -translate-y-1/2 z-40 hidden lg:block rounded-2xl bg-background/40 backdrop-blur-md ring-1 ring-border/50 shadow-lg p-2">
+        <ul className="flex flex-col gap-2">
+          {featureTitles.map((title, idx) => (
+            <li key={idx}>
+              <button
+                onClick={() => handleNavClick(idx)}
+                className={
+                  `group flex items-center gap-2 rounded-full px-3 py-1.5 text-sm transition-colors ` +
+                  (idx === activeIndex
+                    ? 'bg-foreground text-background'
+                    : 'bg-foreground/5 text-foreground hover:bg-foreground/10')
+                }
+                aria-current={idx === activeIndex ? 'true' : 'false'}
+                aria-label={`Go to ${title}`}
+              >
+                <span
+                  className={
+                    `inline-block h-2 w-2 rounded-full ` +
+                    (idx === activeIndex ? 'bg-background' : 'bg-foreground/40 group-hover:bg-foreground')
+                  }
+                />
+                {title}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
       {/* Intro Hero (full-page, glass + glow style) */}
       <section className="relative mx-auto max-md:h-[50vh] max-sm:min-h-[400px] max-md:min-h-[600px] md:min-h-[800px] md:h-[calc(100vh-9rem)] w-[calc(100%-1.5rem)] sm:w-[calc(100%-3rem)] md:w-[calc(100%-4rem)] max-w-[1800px] overflow-hidden rounded-[28px] ring-1 ring-border/50 bg-gradient-to-br from-muted/60 via-background/60 to-muted/40 backdrop-blur-xl shadow-2xl">
         {/* Decorative gradient glows */}
@@ -155,7 +209,7 @@ export default function FeaturesPage() {
       </section>
 
       {/* Scroll-driven Feature Box Section */}
-      <div ref={sectionRef} id="preview" className="min-h-[600vh]">
+      <div ref={sectionRef} id="preview" className="min-h-[1200vh]">
         <div
           ref={revealRef}
           className={`sticky top-0 h-screen grid place-items-start pt-[90px] transition-all duration-700 ease-out ${
